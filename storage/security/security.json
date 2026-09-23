@@ -1,0 +1,11 @@
+{
+    "enabled": true,
+    "logging": true,
+    "intelligent": true,
+    "htaccess_enhanced": true,
+    "log_humans": true,
+    "log_bots": true,
+    "rate_limit": false,
+    "blocked_ips": [],
+    "blocked_paths": []
+}

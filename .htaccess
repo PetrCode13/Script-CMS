@@ -1,0 +1,58 @@
+Options -Indexes -MultiViews
+
+AddDefaultCharset UTF-8
+
+# Hlavičky pro zabezpečení a vypnutí vyrovnávací paměti (Cache)
+<IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# Blokování citlivých souborů podle přípony a názvu
+<FilesMatch "\.(json|jsonl|md|lock|log|sql|git|env|ini|sh|bak)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<Files .htaccess>
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</Files>
+
+# Přepisovací pravidla (Rewrite)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Blokování systémových složek a citlivých souborů
+    RewriteRule ^(?:\.env|\.git(?:/|$)|composer\.(?:json|lock)|storage(?:/|$)|config(?:/|$)|core(?:/|$)|content/pages(?:/|$)) - [F,L,NC]
+
+    # Blokování škodlivých Botů / User Agentů
+    RewriteCond %{HTTP_USER_AGENT} (binlar|casper|cmsworldmap|comodo|diavol|dotbot|feedfinder|flicky|ia_archiver|jakarta|kmccrew|nmap|nikto|planetwork|purebot|pycurl|python|skygrid|sucker|turnit|vikspider|winhttp|zmeu) [NC]
+    RewriteRule ^ - [F,L]
+
+    # Pokud existuje reálný soubor nebo složka, otevře se přímo
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Směrování zbylých požadavků na index.php
+    RewriteRule ^(.+?)/?$ index.php?route=$1 [QSA,L]
+    RewriteRule ^$ index.php [L]
+</IfModule>
