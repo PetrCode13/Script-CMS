@@ -1,5 +1,8 @@
 # ScriptCMS ™
 
+What od CMS?
+CMS is website system for create, edit and manage your websites easy and clearly.
+
 ## What to expect?
 
 #### Fast, Easy, reliable and powerful.
